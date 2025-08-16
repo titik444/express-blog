@@ -1,0 +1,21 @@
+#dependecies
+/node_modules
+
+# testing
+/coverage
+
+# production
+/build
+/dist
+
+#misc
+DS_Store
+.package-lock.json
+pnpm-lock.yaml
+pnpm-lock.yaml
+
+.env
+public/images/*
+!public/images/.gitkeep
+
+prisma/migrations/*
