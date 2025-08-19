@@ -23,6 +23,13 @@ const createServer = () => {
     next()
   })
 
+  app.get('/', (req, res) => {
+    res.status(200).json({
+      status: 'success',
+      message: 'Server is running'
+    })
+  })
+
   // Routes utama
   app.use('/api', routes)
 
