@@ -6,6 +6,9 @@ import globals from 'globals'
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   {
+    ignores: ['node_modules', 'dist', 'build', 'generated', 'prisma/generated']
+  },
+  {
     files: ['**/*.{js,mjs,cjs,ts,tsx}'],
     languageOptions: {
       parserOptions: {

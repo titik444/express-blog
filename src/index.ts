@@ -1,12 +1,20 @@
-import express, { Request, Response } from 'express';
+import http from 'http'
+import createServer from './app'
+import { config } from './config'
 
-const app = express();
-const PORT = 3000;
+const PORT = config.app.port || 5000
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello, TypeScript with Express!');
-});
+// Buat server HTTP dari express app
+const app = createServer()
 
-app.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`);
-});
+// Buat server HTTP
+const server = http.createServer(app)
+
+// Event listener untuk server error
+server.on('error', (err: NodeJS.ErrnoException) => {
+  console.error('Server error:', err.message)
+  process.exit(1)
+})
+
+// Jalankan server
+server.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`))

@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String     @id @default(cuid()) @map("id")
+  name       String     @map("name")
+  email      String     @unique @map("email")
+  password   String     @map("password")
+  role       Role       @default(USER) @map("role")
+  avatarUrl  String?    @map("avatar_url")
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @updatedAt @map("updated_at")
+
+  // Relations
+  posts      Post[]
+  comments   Comment[]
+
+  @@map("user")
+}
+
+model Post {
+  id             String         @id @default(cuid()) @map("id")
+  title          String         @map("title")
+  slug           String         @unique @map("slug")
+  content        String         @map("content")
+  featuredImage  String?        @map("featured_image")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  // Relations
+  author     User          @relation(fields: [authorId], references: [id])
+  authorId   String        @map("author_id")
+  comments   Comment[]
+  categories PostCategory[]
+
+  @@map("post")
+  @@index([authorId], name: "idx_post_author")
+}
+
+model Comment {
+  id        String   @id @default(cuid()) @map("id")
+  content   String   @map("content")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    String   @map("post_id")
+
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String   @map("author_id")
+
+  @@map("comment")
+  @@index([postId], name: "idx_comment_post")
+  @@index([authorId], name: "idx_comment_author")
+}
+
+model Category {
+  id        String         @id @default(cuid()) @map("id")
+  name      String         @unique @map("name")
+  slug      String         @unique @map("slug")
+  createdAt DateTime       @default(now()) @map("created_at")
+
+  // Relations
+  posts     PostCategory[]
+
+  @@map("category")
+}
+
+model PostCategory {
+  postId     String   @map("post_id")
+  categoryId String   @map("category_id")
+
+  post       Post     @relation(fields: [postId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  @@id([postId, categoryId]) // composite primary key
+  @@map("post_category")
+  @@index([categoryId], name: "idx_post_category_category")
+}
+
+enum Role {
+  ADMIN
+  USER
+}

@@ -10,12 +10,16 @@
 
 #misc
 DS_Store
-.package-lock.json
+package-lock.json
 pnpm-lock.yaml
-pnpm-lock.yaml
+bun.lock
 
 .env
+.env.test
+test.http
+
 public/images/*
 !public/images/.gitkeep
 
 prisma/migrations/*
+/generated/prisma
