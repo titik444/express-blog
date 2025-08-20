@@ -39,7 +39,16 @@ export default [
       'array-callback-return': 'off',
       '@typescript-eslint/no-misused-promises': 'off',
       '@typescript-eslint/no-var-requires': 'off',
-      'no-undef': 'off'
+      'no-undef': 'off',
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_', // abaikan argumen berawalan underscore
+          varsIgnorePattern: '^_', // abaikan variabel lokal berawalan underscore
+          caughtErrorsIgnorePattern: '^_' // abaikan error param di catch(error)
+        }
+      ]
     },
     settings: {
       // jika ada setting tambahan
