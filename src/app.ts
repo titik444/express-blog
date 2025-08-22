@@ -33,6 +33,11 @@ const createServer = () => {
   // Routes utama
   app.use('/api', routes)
 
+  // Catch-all untuk route yang tidak ditemukan
+  app.use((_req, _res, next) => {
+    next({ status: 404, message: 'Route not found' })
+  })
+
   // Middleware API key, kecualikan /auth/generate-api-key
   // app.use(apiKeyAuth(['/images', '/health', '/generate-api-key']) as any)
 

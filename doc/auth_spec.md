@@ -120,3 +120,85 @@ Response
   "message": "Invalid email or password"
 }
 ```
+
+## Current User(me)
+
+Endpoint :
+
+- GET {{BASE_URL}}/api/auth/me
+
+Request
+
+- Header :
+
+  Content-Type: application/json
+  Authorization: Bearer {token}
+
+Response
+
+- Success (200)
+
+```json
+{
+  "success": true,
+  "message": "Current user fetched",
+  "data": {
+    "id": "cmeii3eid0000u2ewoir8g45a",
+    "name": "Jane Doe",
+    "email": "jane@example.com",
+    "role": "USER"
+  }
+}
+```
+
+- Error (401)
+
+```json
+{
+  "success": false,
+  "message": "Invalid or expired token"
+}
+```
+
+## Refresh Token
+
+Endpoint :
+
+- POST {{BASE_URL}}/api/auth/refresh
+
+Request
+
+- Header :
+
+  Content-Type: application/json
+
+- Request Body
+
+```json
+{
+  "refreshToken": "xxxxxxxxxxxxxxxxxxxxx"
+}
+```
+
+Response
+
+- Success (200)
+
+```json
+{
+  "success": true,
+  "message": "Token refreshed",
+  "data": {
+    "token": "xxxxxxxxxxxxxxxxxxxxx"
+  }
+}
+```
+
+- Error (401)
+
+```json
+{
+  "success": false,
+  "message": "Invalid or expired refresh token"
+}
+```

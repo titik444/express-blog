@@ -59,17 +59,33 @@ export const login = async ({ email, password }: { email: string; password: stri
   return { id: user.id, name: user.name, email: user.email, role: user.role, token, refreshToken }
 }
 
-// Refresh Token
-export const refreshToken = async (refreshToken: string) => {
-  try {
-    const decoded = jwt.verify(refreshToken, config.jwt.secret) as JwtPayload
+// Get current user (me)
+export const getMe = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, name: true, email: true, role: true }
+  })
 
-    const newAccessToken = jwt.sign({ id: decoded.id, role: decoded.role }, config.jwt.secret, {
+  if (!user) {
+    throw { status: 404, message: 'User not found' }
+  }
+
+  return user
+}
+
+// Refresh token
+export const refreshToken = async (token: string) => {
+  try {
+    const decoded = jwt.verify(token, config.jwt.secret) as JwtPayload
+
+    // Generate new access token
+    const payload: JwtPayload = { id: decoded.id, role: decoded.role }
+    const newAccessToken = jwt.sign(payload, config.jwt.secret, {
       expiresIn: parseInt(config.jwt.expiresIn)
     })
 
-    return { accessToken: newAccessToken }
+    return { token: newAccessToken }
   } catch {
-    throw { status: 401, message: 'Invalid refresh token' }
+    throw { status: 401, message: 'Invalid or expired refresh token' }
   }
 }
