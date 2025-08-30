@@ -130,9 +130,16 @@ export const getPostBySlug = async (slug: string) => {
           category: true
         }
       },
-      author: true
+      author: true,
+      comments: {
+        include: {
+          author: true
+        }
+      }
     }
   })
+
+  console.log(post)
 
   return {
     id: post?.id,
@@ -150,6 +157,16 @@ export const getPostBySlug = async (slug: string) => {
       id: pc.category.id,
       name: pc.category.name,
       slug: pc.category.slug
+    })),
+    comments: post?.comments.map((comment) => ({
+      id: comment.id,
+      content: comment.content,
+      createdAt: comment.createdAt,
+      author: {
+        id: comment.author.id,
+        name: comment.author.name,
+        avatarUrl: comment.author.avatarUrl
+      }
     }))
   }
 }

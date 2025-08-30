@@ -187,13 +187,17 @@ Response
   "success": true,
   "message": "Post fetched",
   "data": {
-    "id": "cmeypliqd0001u2cwggvk7hkq",
-    "title": "My First Post",
-    "slug": "my-first-post",
-    "content": "This is the content of my first post.",
-    "featuredImage": "https://example.com/image.jpg",
-    "createdAt": "2025-08-30T20:23:27.253Z",
-    "authorId": "cmeii3eid0000u2ewoir8g45a",
+    "id": "cmei9jreg0006u24wsqw4clyk",
+    "title": "Welcome to My Blog",
+    "slug": "welcome-to-my-blog",
+    "content": "This is the very first post seeded into the blog.",
+    "featuredImage": "https://picsum.photos/800/400",
+    "createdAt": "2025-08-19T08:09:52.504Z",
+    "author": {
+      "id": "cmei9jrci0000u24w70vn7pmj",
+      "name": "Super Admin",
+      "avatarUrl": "https://i.pravatar.cc/150?img=1"
+    },
     "categories": [
       {
         "id": "cmei9jrdt0002u24wz05dtahz",
@@ -206,11 +210,18 @@ Response
         "slug": "lifestyle"
       }
     ],
-    "author": {
-      "id": "cmeii3eid0000u2ewoir8g45a",
-      "name": "Jane Doe",
-      "avatarUrl": null
-    }
+    "comments": [
+      {
+        "id": "cmei9jrez0008u24wdz8515ex",
+        "content": "This is a seeded comment from John Doe",
+        "createdAt": "2025-08-19T08:09:52.524Z",
+        "author": {
+          "id": "cmei9jrdf0001u24wpoagtxik",
+          "name": "John Doe",
+          "avatarUrl": "https://i.pravatar.cc/150?img=2"
+        }
+      }
+    ]
   }
 }
 ```
