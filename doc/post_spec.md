@@ -118,7 +118,6 @@ Response
         "content": "This is the content of my second post.",
         "featuredImage": "https://example.com/image.jpg",
         "createdAt": "2025-08-30T20:28:46.495Z",
-        "authorId": "cmeii3eid0000u2ewoir8g45a",
         "categories": [
           {
             "id": "cmei9jrdt0002u24wz05dtahz",
@@ -139,7 +138,6 @@ Response
         "content": "This is the content of my first post.",
         "featuredImage": "https://example.com/image.jpg",
         "createdAt": "2025-08-30T20:23:27.253Z",
-        "authorId": "cmeii3eid0000u2ewoir8g45a",
         "categories": [
           {
             "id": "cmei9jrdt0002u24wz05dtahz",
@@ -274,7 +272,6 @@ Response
     "content": "This is the content of my first post.",
     "featuredImage": "https://example.com/new-image.jpg",
     "createdAt": "2025-08-30T20:23:27.253Z",
-    "authorId": "cmeii3eid0000u2ewoir8g45a",
     "categories": [
       {
         "id": "cmei9jrdt0002u24wz05dtahz",

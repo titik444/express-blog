@@ -39,7 +39,6 @@ Response
     "postId": "cmei9jrdt0002u24wz05dtahz",
     "content": "This is the comment content.",
     "createdAt": "2025-08-30T20:23:27.253Z",
-    "authorId": "cmeii3eid0000u2ewoir8g45a",
     "author": {
       "id": "cmeii3eid0000u2ewoir8g45a",
       "name": "Jane Doe",
@@ -56,6 +55,42 @@ Response
   "success": false,
   "message": "Validation error",
   "errors": ["Content is required"]
+}
+```
+
+## Get Comments By Id
+
+Endpoint :
+
+- GET {{BASE_URL}}/api/comment/{id}
+
+Response
+
+- Success (200)
+
+```json
+{
+  "success": true,
+  "message": "Comment fetched",
+  "data": {
+    "id": "cmf0upb5e0003u2workx82lsc",
+    "content": "This is the comment",
+    "createdAt": "2025-09-01T08:21:54.183Z",
+    "author": {
+      "id": "cmeii3eid0000u2ewoir8g45a",
+      "name": "Jane Doe",
+      "avatarUrl": null
+    }
+  }
+}
+```
+
+- Error (404)
+
+```json
+{
+  "success": false,
+  "message": "Comment not found"
 }
 ```
 
@@ -93,7 +128,6 @@ Response
     "postId": "cmei9jrdt0002u24wz05dtahz",
     "content": "This is the updated content.",
     "createdAt": "2025-08-30T20:23:27.253Z",
-    "authorId": "cmeii3eid0000u2ewoir8g45a",
     "author": {
       "id": "cmeii3eid0000u2ewoir8g45a",
       "name": "Jane Doe",
