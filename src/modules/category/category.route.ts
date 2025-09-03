@@ -8,8 +8,8 @@ router.get('/', categoryController.getCategories)
 router.get('/:slug', categoryController.getCategoryBySlug)
 
 // Admin Only
-router.post('/', authGuard(['ADMIN']), categoryController.createCategory)
-router.put('/:id', authGuard(['ADMIN']), categoryController.updateCategory)
-router.delete('/:id', authGuard(['ADMIN']), categoryController.deleteCategory)
+router.post('/', authGuard({ roles: ['ADMIN'] }), categoryController.createCategory)
+router.put('/:id', authGuard({ roles: ['ADMIN'] }), categoryController.updateCategory)
+router.delete('/:id', authGuard({ roles: ['ADMIN'] }), categoryController.deleteCategory)
 
 export default router

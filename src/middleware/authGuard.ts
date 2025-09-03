@@ -7,11 +7,17 @@ interface JwtPayload {
   role: string
 }
 
-export const authGuard = (roles: string[] = []) => {
+interface AuthOptions {
+  roles?: string[]
+  optional?: boolean
+}
+
+export const authGuard = (options: AuthOptions = {}) => {
   return (req: Request, _res: Response, next: NextFunction) => {
     try {
       const authHeader = req.headers.authorization
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        if (options.optional) return next()
         throw { status: 401, message: 'No token provided' }
       }
 
@@ -20,15 +26,14 @@ export const authGuard = (roles: string[] = []) => {
 
       ;(req as any).user = decoded
 
-      console.log({ length: roles.length, decoded: decoded.role, roles: roles, match: roles.includes(decoded.role) })
-
-      if (roles.length && !roles.includes(decoded.role)) {
-        console.log('Forbidden: insufficient role')
+      const { roles = [] } = options
+      if (roles.length > 0 && !roles.includes(decoded.role)) {
         throw { status: 403, message: 'Forbidden: insufficient role' }
       }
 
       next()
     } catch (err: any) {
+      if (options.optional) return next() // token bisa invalid kalau optional
       if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
         next({ status: 401, message: 'Invalid or expired token' })
       } else {

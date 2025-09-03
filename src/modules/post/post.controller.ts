@@ -31,8 +31,9 @@ export const getPosts = async (req: Request, res: Response, next: NextFunction) 
       throw { status: 400, message: 'Validation error', errors: error.details.map((d) => d.message) }
     }
 
+    const userId = (req as any).user?.id
     const { page, limit, search } = value
-    const posts = await postService.getPosts(page, limit, search)
+    const posts = await postService.getPosts(page, limit, search, userId)
 
     const response: ApiResponse = { success: true, message: 'Posts fetched', data: posts }
     res.json(response)
@@ -45,7 +46,9 @@ export const getPosts = async (req: Request, res: Response, next: NextFunction) 
 export const getPostBySlug = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { slug } = req.params
-    const post = await postService.getPostBySlug(slug)
+    const userId = (req as any).user?.id
+    const post = await postService.getPostBySlug(slug, userId)
+
     if (!post) throw { status: 404, message: 'Post not found' }
 
     const response: ApiResponse = { success: true, message: 'Post fetched', data: post }
@@ -86,6 +89,34 @@ export const deletePost = async (req: Request, res: Response, next: NextFunction
 
     const response: ApiResponse = { success: true, message: 'Post deleted' }
     res.json(response)
+  } catch (err) {
+    next(err)
+  }
+}
+
+export const likePost = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = (req as any).user.id
+    const { id } = req.params
+
+    const result = await postService.likePost(id, userId)
+
+    const response: ApiResponse = { success: true, message: result.message }
+    res.status(200).json(response)
+  } catch (err) {
+    next(err)
+  }
+}
+
+export const unlikePost = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = (req as any).user.id
+    const { id } = req.params
+
+    const result = await postService.unlikePost(id, userId)
+
+    const response: ApiResponse = { success: true, message: result.message }
+    res.status(200).json(response)
   } catch (err) {
     next(err)
   }

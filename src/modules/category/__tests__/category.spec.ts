@@ -85,7 +85,7 @@ describe('Category Module', () => {
 
       expect(res.status).toBe(400)
       expect(res.body.success).toBe(false)
-      expect(res.body.errors).toContain('"Category name" is required')
+      expect(res.body.errors).toContain('Category name is required')
     })
   })
 

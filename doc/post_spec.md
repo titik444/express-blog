@@ -42,6 +42,8 @@ Response
     "slug": "my-first-post8",
     "content": "This is the content of my first post.",
     "featuredImage": "https://example.com/image.jpg",
+    "isLiked": false,
+    "likeCount": 0,
     "createdAt": "2025-08-30T20:46:49.849Z",
     "author": {
       "id": "cmeii3eid0000u2ewoir8g45a",
@@ -94,6 +96,7 @@ Request
 - Header :
 
   Content-Type: application/json
+  Authorization: Bearer {token} (OPTIONAL)
 
 Query Params
 
@@ -117,6 +120,8 @@ Response
         "slug": "my-second-post",
         "content": "This is the content of my second post.",
         "featuredImage": "https://example.com/image.jpg",
+        "isLiked": false,
+        "likeCount": 0,
         "createdAt": "2025-08-30T20:28:46.495Z",
         "categories": [
           {
@@ -137,6 +142,8 @@ Response
         "slug": "my-first-post",
         "content": "This is the content of my first post.",
         "featuredImage": "https://example.com/image.jpg",
+        "isLiked": false,
+        "likeCount": 0,
         "createdAt": "2025-08-30T20:23:27.253Z",
         "categories": [
           {
@@ -175,6 +182,7 @@ Request
 - Header :
 
   Content-Type: application/json
+  Authorization: Bearer {token} (OPTIONAL)
 
 Response
 
@@ -190,6 +198,8 @@ Response
     "slug": "welcome-to-my-blog",
     "content": "This is the very first post seeded into the blog.",
     "featuredImage": "https://picsum.photos/800/400",
+    "isLiked": false,
+    "likeCount": 0,
     "createdAt": "2025-08-19T08:09:52.504Z",
     "author": {
       "id": "cmei9jrci0000u24w70vn7pmj",
@@ -212,6 +222,8 @@ Response
       {
         "id": "cmei9jrez0008u24wdz8515ex",
         "content": "This is a seeded comment from John Doe",
+        "isLiked": false,
+        "likeCount": 0,
         "createdAt": "2025-08-19T08:09:52.524Z",
         "author": {
           "id": "cmei9jrdf0001u24wpoagtxik",
@@ -271,6 +283,8 @@ Response
     "slug": "my-updated-post",
     "content": "This is the content of my first post.",
     "featuredImage": "https://example.com/new-image.jpg",
+    "isLiked": false,
+    "likeCount": 0,
     "createdAt": "2025-08-30T20:23:27.253Z",
     "categories": [
       {
@@ -308,6 +322,7 @@ Request
 - Header :
 
   Content-Type: application/json
+  Authorization: Bearer {token}
 
 Response
 
@@ -317,6 +332,90 @@ Response
 {
   "success": true,
   "message": "Post deleted"
+}
+```
+
+- Error (404)
+
+```json
+{
+  "success": false,
+  "message": "Post not found"
+}
+```
+
+## Like Post (Authenticated user only)
+
+Endpoint :
+
+- POST {{BASE_URL}}/api/post/{id}/like
+
+Request
+
+- Header :
+
+  Content-Type: application/json
+  Authorization: Bearer {token}
+
+Response
+
+- Success (200)
+
+```json
+{
+  "success": true,
+  "message": "Post liked"
+}
+```
+
+- Error (400)
+
+```json
+{
+  "success": false,
+  "message": "You already liked this post"
+}
+```
+
+- Error (404)
+
+```json
+{
+  "success": false,
+  "message": "Post not found"
+}
+```
+
+## Unlike Post (Authenticated user only)
+
+Endpoint :
+
+- DELETE {{BASE_URL}}/api/post/{id}/unlike
+
+Request
+
+- Header :
+
+  Content-Type: application/json
+  Authorization: Bearer {token}
+
+Response
+
+- Success (200)
+
+```json
+{
+  "success": true,
+  "message": "Post unliked"
+}
+```
+
+- Error (400)
+
+```json
+{
+  "success": false,
+  "message": "You have not liked this post"
 }
 ```
 

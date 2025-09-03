@@ -110,6 +110,46 @@ describe('Comment Module', () => {
     })
   })
 
+  describe('POST /api/comment/:id/like', () => {
+    it('✅ should like the comment', async () => {
+      const res = await request(app).post(`/api/comment/${commentId}/like`).set('Authorization', `Bearer ${userToken}`)
+
+      expect(res.status).toBe(200)
+      expect(res.body.success).toBe(true)
+      expect(res.body.message).toMatch(/liked/i)
+    })
+
+    it('❌ should not like the comment twice', async () => {
+      const res = await request(app).post(`/api/comment/${commentId}/like`).set('Authorization', `Bearer ${userToken}`)
+
+      expect(res.status).toBe(400)
+      expect(res.body.success).toBe(false)
+      expect(res.body.message).toMatch(/already liked/i)
+    })
+  })
+
+  describe('DELETE /api/comment/:id/unlike', () => {
+    it('✅ should unlike the comment', async () => {
+      const res = await request(app)
+        .delete(`/api/comment/${commentId}/unlike`)
+        .set('Authorization', `Bearer ${userToken}`)
+
+      expect(res.status).toBe(200)
+      expect(res.body.success).toBe(true)
+      expect(res.body.message).toMatch(/unliked/i)
+    })
+
+    it('❌ should not unlike if not liked', async () => {
+      const res = await request(app)
+        .delete(`/api/comment/${commentId}/unlike`)
+        .set('Authorization', `Bearer ${userToken}`)
+
+      expect(res.status).toBe(400)
+      expect(res.body.success).toBe(false)
+      expect(res.body.message).toMatch(/not liked/i)
+    })
+  })
+
   describe('DELETE /api/comment/:id', () => {
     it('✅ should delete comment', async () => {
       const res = await request(app).delete(`/api/comment/${commentId}`).set('Authorization', `Bearer ${userToken}`)

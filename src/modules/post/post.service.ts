@@ -55,6 +55,8 @@ export const createPost = async (
     slug: fullPost?.slug,
     content: fullPost?.content,
     featuredImage: fullPost?.featuredImage,
+    isLiked: false,
+    likeCount: fullPost?.likeCount,
     createdAt: fullPost?.createdAt,
     author: {
       id: fullPost?.author.id,
@@ -70,7 +72,7 @@ export const createPost = async (
 }
 
 // Get all posts with pagination and optional search
-export const getPosts = async (page: number, limit: number, search?: string) => {
+export const getPosts = async (page: number, limit: number, search?: string, userId?: string) => {
   const where = search
     ? {
         OR: [
@@ -98,12 +100,25 @@ export const getPosts = async (page: number, limit: number, search?: string) => 
     prisma.post.count({ where })
   ])
 
+  let likedPostIds: Set<string> = new Set()
+
+  if (userId) {
+    const likes = await prisma.postLike.findMany({
+      where: { userId },
+      select: { postId: true }
+    })
+
+    likedPostIds = new Set(likes.map((like) => like.postId))
+  }
+
   const items = posts.map((post) => ({
     id: post.id,
     title: post.title,
     slug: post.slug,
     content: post.content,
     featuredImage: post.featuredImage,
+    isLiked: likedPostIds.has(post.id),
+    likeCount: post?.likeCount,
     createdAt: post.createdAt,
     author: {
       id: post.author.id,
@@ -121,7 +136,7 @@ export const getPosts = async (page: number, limit: number, search?: string) => 
 }
 
 // Get post by slug
-export const getPostBySlug = async (slug: string) => {
+export const getPostBySlug = async (slug: string, userId?: string) => {
   const post = await prisma.post.findUnique({
     where: { slug },
     include: {
@@ -139,28 +154,53 @@ export const getPostBySlug = async (slug: string) => {
     }
   })
 
-  console.log(post)
+  if (!post) throw { status: 404, message: 'Post not found' }
+
+  let isLiked = false
+  let likedCommentIds: Set<string> = new Set()
+
+  if (userId) {
+    const [postLike, commentLikes] = await Promise.all([
+      prisma.postLike.findUnique({
+        where: { userId_postId: { userId, postId: post.id } }
+      }),
+      prisma.commentLike.findMany({
+        where: {
+          userId,
+          commentId: { in: post.comments.map((c) => c.id) }
+        },
+        select: { commentId: true }
+      })
+    ])
+
+    isLiked = !!postLike
+    likedCommentIds = new Set(commentLikes.map((c) => c.commentId))
+  }
 
   return {
-    id: post?.id,
-    title: post?.title,
-    slug: post?.slug,
-    content: post?.content,
-    featuredImage: post?.featuredImage,
-    createdAt: post?.createdAt,
+    id: post.id,
+    title: post.title,
+    slug: post.slug,
+    content: post.content,
+    featuredImage: post.featuredImage,
+    isLiked,
+    likeCount: post.likeCount,
+    createdAt: post.createdAt,
     author: {
-      id: post?.author.id,
-      name: post?.author.name,
-      avatarUrl: post?.author.avatarUrl
+      id: post.author.id,
+      name: post.author.name,
+      avatarUrl: post.author.avatarUrl
     },
-    categories: post?.categories.map((pc) => ({
+    categories: post.categories.map((pc) => ({
       id: pc.category.id,
       name: pc.category.name,
       slug: pc.category.slug
     })),
-    comments: post?.comments.map((comment) => ({
+    comments: post.comments.map((comment) => ({
       id: comment.id,
       content: comment.content,
+      isLiked: likedCommentIds.has(comment.id),
+      likeCount: comment.likeCount,
       createdAt: comment.createdAt,
       author: {
         id: comment.author.id,
@@ -221,7 +261,7 @@ export const updatePost = async (
     })
   }
 
-  const updatePost = await prisma.post.update({
+  const updatedPost = await prisma.post.update({
     where: { id },
     data: updateData,
     include: {
@@ -234,19 +274,25 @@ export const updatePost = async (
     }
   })
 
+  const liked = await prisma.postLike.findUnique({
+    where: { userId_postId: { userId, postId: updatedPost.id } }
+  })
+
   return {
-    id: updatePost?.id,
-    title: updatePost?.title,
-    slug: updatePost?.slug,
-    content: updatePost?.content,
-    featuredImage: updatePost?.featuredImage,
-    createdAt: updatePost?.createdAt,
+    id: updatedPost.id,
+    title: updatedPost.title,
+    slug: updatedPost.slug,
+    content: updatedPost.content,
+    featuredImage: updatedPost.featuredImage,
+    isLiked: !!liked,
+    likeCount: updatedPost.likeCount,
+    createdAt: updatedPost.createdAt,
     author: {
-      id: updatePost?.author.id,
-      name: updatePost?.author.name,
-      avatarUrl: updatePost?.author.avatarUrl
+      id: updatedPost.author.id,
+      name: updatedPost.author.name,
+      avatarUrl: updatedPost.author.avatarUrl
     },
-    categories: updatePost?.categories.map((pc) => ({
+    categories: updatedPost.categories.map((pc) => ({
       id: pc.category.id,
       name: pc.category.name,
       slug: pc.category.slug
@@ -267,4 +313,50 @@ export const deletePost = async (id: string, userId: string) => {
 
   // Baru hapus post-nya
   return prisma.post.delete({ where: { id } })
+}
+
+export const likePost = async (postId: string, userId: string) => {
+  const post = await prisma.post.findUnique({ where: { id: postId } })
+  if (!post) throw { status: 404, message: 'Post not found' }
+
+  const alreadyLiked = await prisma.postLike.findUnique({
+    where: { userId_postId: { userId, postId } }
+  })
+
+  if (alreadyLiked) throw { status: 400, message: 'You already liked this post' }
+
+  await prisma.$transaction([
+    prisma.postLike.create({
+      data: { postId, userId }
+    }),
+    prisma.post.update({
+      where: { id: postId },
+      data: { likeCount: { increment: 1 } }
+    })
+  ])
+
+  return { message: 'Post liked' }
+}
+
+export const unlikePost = async (postId: string, userId: string) => {
+  const post = await prisma.post.findUnique({ where: { id: postId } })
+  if (!post) throw { status: 404, message: 'Post not found' }
+
+  const like = await prisma.postLike.findUnique({
+    where: { userId_postId: { userId, postId } }
+  })
+
+  if (!like) throw { status: 400, message: 'You have not liked this post' }
+
+  await prisma.$transaction([
+    prisma.postLike.delete({
+      where: { userId_postId: { userId, postId } }
+    }),
+    prisma.post.update({
+      where: { id: postId },
+      data: { likeCount: { decrement: 1 } }
+    })
+  ])
+
+  return { message: 'Post unliked' }
 }

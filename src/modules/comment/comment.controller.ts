@@ -24,8 +24,9 @@ export const createComment = async (req: Request, res: Response, next: NextFunct
 
 export const getComment = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const userId = (req as any).user?.id
     const { id } = req.params
-    const comment = await commentService.getComment(id)
+    const comment = await commentService.getComment(id, userId)
 
     res.json({ success: true, message: 'Comment fetched', data: comment })
   } catch (err) {
@@ -60,6 +61,36 @@ export const deleteComment = async (req: Request, res: Response, next: NextFunct
     await commentService.deleteComment(id, userId)
 
     res.json({ success: true, message: 'Comment deleted' })
+  } catch (err) {
+    next(err)
+  }
+}
+
+// Like a comment
+export const likeComment = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = (req as any).user.id
+    const { id } = req.params // commentId
+
+    const result = await commentService.likeComment(id, userId)
+
+    const response: ApiResponse = { success: true, message: result.message }
+    res.status(200).json(response)
+  } catch (err) {
+    next(err)
+  }
+}
+
+// Unlike a comment
+export const unlikeComment = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = (req as any).user.id
+    const { id } = req.params // commentId
+
+    const result = await commentService.unlikeComment(id, userId)
+
+    const response: ApiResponse = { success: true, message: result.message }
+    res.status(200).json(response)
   } catch (err) {
     next(err)
   }

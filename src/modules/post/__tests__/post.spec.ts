@@ -101,9 +101,9 @@ describe('Post Module', () => {
     })
   })
 
-  describe('PUT /api/post/:id (Update)', () => {
+  describe('PATCH /api/post/:id (Update)', () => {
     it('✅ should update post', async () => {
-      const res = await request(app).put(`/api/post/${postId}`).set('Authorization', `Bearer ${userToken}`).send({
+      const res = await request(app).patch(`/api/post/${postId}`).set('Authorization', `Bearer ${userToken}`).send({
         title: 'Updated Post',
         content: 'Updated content of the post.'
       })
@@ -115,12 +115,48 @@ describe('Post Module', () => {
 
     it('❌ should fail update with invalid data', async () => {
       const res = await request(app)
-        .put(`/api/post/${postId}`)
+        .patch(`/api/post/${postId}`)
         .set('Authorization', `Bearer ${userToken}`)
         .send({ title: '' })
 
       expect(res.status).toBe(400)
       expect(res.body.success).toBe(false)
+    })
+  })
+
+  describe('POST /api/post/:id/like', () => {
+    it('✅ should like the post', async () => {
+      const res = await request(app).post(`/api/post/${postId}/like`).set('Authorization', `Bearer ${userToken}`)
+
+      expect(res.status).toBe(200)
+      expect(res.body.success).toBe(true)
+      expect(res.body.message).toMatch(/liked/i)
+    })
+
+    it('❌ should not like the post twice', async () => {
+      const res = await request(app).post(`/api/post/${postId}/like`).set('Authorization', `Bearer ${userToken}`)
+
+      expect(res.status).toBe(400)
+      expect(res.body.success).toBe(false)
+      expect(res.body.message).toMatch(/already liked/i)
+    })
+  })
+
+  describe('DELETE /api/post/:id/unlike', () => {
+    it('✅ should unlike the post', async () => {
+      const res = await request(app).delete(`/api/post/${postId}/unlike`).set('Authorization', `Bearer ${userToken}`)
+
+      expect(res.status).toBe(200)
+      expect(res.body.success).toBe(true)
+      expect(res.body.message).toMatch(/unliked/i)
+    })
+
+    it('❌ should not unlike if not liked', async () => {
+      const res = await request(app).delete(`/api/post/${postId}/unlike`).set('Authorization', `Bearer ${userToken}`)
+
+      expect(res.status).toBe(400)
+      expect(res.body.success).toBe(false)
+      expect(res.body.message).toMatch(/not liked/i)
     })
   })
 

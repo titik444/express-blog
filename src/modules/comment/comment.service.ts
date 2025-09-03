@@ -21,6 +21,8 @@ export const createComment = async (userId: string, postId: string, content: str
   return {
     id: comment.id,
     content: comment.content,
+    isLiked: false,
+    likeCount: comment.likeCount,
     createdAt: comment.createdAt,
     author: comment.author
   }
@@ -29,7 +31,7 @@ export const createComment = async (userId: string, postId: string, content: str
 /**
  * Get comment by ID
  */
-export const getComment = async (id: string) => {
+export const getComment = async (id: string, userId?: string) => {
   const comment = await prisma.comment.findUnique({
     where: { id },
     include: {
@@ -43,11 +45,22 @@ export const getComment = async (id: string) => {
     throw { status: 404, message: 'Comment not found' }
   }
 
+  let isLiked = false
+
+  if (userId) {
+    const like = await prisma.commentLike.findUnique({
+      where: { userId_commentId: { userId, commentId: comment.id } }
+    })
+    isLiked = !!like
+  }
+
   return {
-    id: comment?.id,
-    content: comment?.content,
-    createdAt: comment?.createdAt,
-    author: comment?.author
+    id: comment.id,
+    content: comment.content,
+    isLiked,
+    likeCount: comment.likeCount,
+    createdAt: comment.createdAt,
+    author: comment.author
   }
 }
 
@@ -74,9 +87,15 @@ export const updateComment = async (id: string, userId: string, content: string)
     }
   })
 
+  const liked = await prisma.commentLike.findUnique({
+    where: { userId_commentId: { userId, commentId: updatedComment.id } }
+  })
+
   return {
     id: updatedComment.id,
     content: updatedComment.content,
+    isLiked: !!liked,
+    likeCount: updatedComment.likeCount,
     createdAt: updatedComment.createdAt,
     author: updatedComment.author
   }
@@ -98,4 +117,56 @@ export const deleteComment = async (id: string, userId: string) => {
   await prisma.comment.delete({ where: { id } })
 
   return { message: 'Comment deleted successfully' }
+}
+
+// Like a comment
+export const likeComment = async (commentId: string, userId: string) => {
+  const comment = await prisma.comment.findUnique({ where: { id: commentId } })
+  if (!comment) throw { status: 404, message: 'Comment not found' }
+
+  const alreadyLiked = await prisma.commentLike.findUnique({
+    where: { userId_commentId: { userId, commentId } }
+  })
+
+  if (alreadyLiked) {
+    throw { status: 400, message: 'You already liked this comment' }
+  }
+
+  await prisma.$transaction([
+    prisma.commentLike.create({
+      data: { commentId, userId }
+    }),
+    prisma.comment.update({
+      where: { id: commentId },
+      data: { likeCount: { increment: 1 } }
+    })
+  ])
+
+  return { message: 'Comment liked' }
+}
+
+// Unlike a comment
+export const unlikeComment = async (commentId: string, userId: string) => {
+  const comment = await prisma.comment.findUnique({ where: { id: commentId } })
+  if (!comment) throw { status: 404, message: 'Comment not found' }
+
+  const like = await prisma.commentLike.findUnique({
+    where: { userId_commentId: { userId, commentId } }
+  })
+
+  if (!like) {
+    throw { status: 400, message: 'You have not liked this comment' }
+  }
+
+  await prisma.$transaction([
+    prisma.commentLike.delete({
+      where: { userId_commentId: { userId, commentId } }
+    }),
+    prisma.comment.update({
+      where: { id: commentId },
+      data: { likeCount: { decrement: 1 } }
+    })
+  ])
+
+  return { message: 'Comment unliked' }
 }
