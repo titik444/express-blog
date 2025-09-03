@@ -15,6 +15,7 @@ Request
 - Header :
 
   Content-Type: application/json
+
   Authorization: Bearer {token}
 
 - Request Body
@@ -96,6 +97,7 @@ Request
 - Header :
 
   Content-Type: application/json
+
   Authorization: Bearer {token} (OPTIONAL)
 
 Query Params
@@ -182,6 +184,7 @@ Request
 - Header :
 
   Content-Type: application/json
+
   Authorization: Bearer {token} (OPTIONAL)
 
 Response
@@ -256,6 +259,7 @@ Request
 - Header :
 
   Content-Type: application/json
+
   Authorization: Bearer {token}
 
 - Request Body
@@ -322,6 +326,7 @@ Request
 - Header :
 
   Content-Type: application/json
+
   Authorization: Bearer {token}
 
 Response
@@ -355,6 +360,7 @@ Request
 - Header :
 
   Content-Type: application/json
+
   Authorization: Bearer {token}
 
 Response
@@ -397,6 +403,7 @@ Request
 - Header :
 
   Content-Type: application/json
+
   Authorization: Bearer {token}
 
 Response
